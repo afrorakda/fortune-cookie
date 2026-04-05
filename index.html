@@ -23,9 +23,11 @@
             margin: 0;
             display: flex;
             justify-content: center;
-            height: 100dvh;
+            /* Hybrid Scroll: 固定しつつ、わずかなスクロールを許容 */
+            min-height: 100dvh;
             -webkit-font-smoothing: antialiased;
-            overflow: hidden;
+            overflow-y: scroll; /* 遊びを持たせる */
+            -webkit-overflow-scrolling: touch;
             user-select: none;
             -webkit-user-select: none;
         }
@@ -33,7 +35,7 @@
         .container {
             width: 100%;
             max-width: 420px;
-            padding: 40px 20px;
+            padding: 30px 20px; /* 上下幅をタイトに */
             box-sizing: border-box;
             text-align: center;
             display: flex;
@@ -44,14 +46,42 @@
         h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: 2px; letter-spacing: -1px; }
         .subtitle { font-size: 0.85rem; color: #666; font-weight: 500; margin-bottom: 20px; }
 
-        /* Cookie Display Area */
+        /* Cookie Display Area (主役) */
         .cookie-area {
             flex-grow: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 10px;
+            position: relative;
+            overflow: hidden; /* シュレッダー演出用 */
+        }
+
+        /* 脈動アニメーション */
+        @keyframes pulsingCookie {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.9; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .cookie-visual {
+            width: 90px;
+            height: 90px;
+            background: var(--main);
+            border-radius: 50%; /* 完全な円に近づける */
+            cursor: pointer;
+            position: absolute; /* 位置を中央に固定 */
+            transition: transform 0.1s, opacity 0.3s;
+            animation: pulsingCookie 2s infinite ease-in-out; /* 鼓動 */
+            -webkit-tap-highlight-color: transparent;
+        }
+        .cookie-visual:active { transform: scale(0.92); animation: none; } /* タップで鼓動を止める */
+
+        /* メッセージ (シュレッダー演出用) */
+        @keyframes shredderOut {
+            0% { transform: translateY(100px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
         }
 
         #messageDisplay {
@@ -63,55 +93,31 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: opacity 0.2s;
+            transform: translateY(100px); /* 初期は隠す */
+            opacity: 0;
+            pointer-events: none; /* 隠れている間はクリック不可 */
+        }
+        #messageDisplay.cracked {
+            animation: shredderOut 0.3s ease-out forwards; /* シュレッダー演出 */
+            pointer-events: auto;
         }
 
-        .cookie-visual {
-            width: 80px;
-            height: 80px;
-            background: var(--main);
-            border-radius: 50% 50% 10% 50%;
-            transform: rotate(-45deg);
-            margin-bottom: 30px;
-            cursor: pointer;
-            transition: transform 0.1s;
-        }
-        .cookie-visual:active { transform: rotate(-45deg) scale(0.92); }
-
-        /* Status & Button */
-        .status-msg {
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: #bbb;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 15px;
-            height: 1rem;
-        }
-
-        .action-btn {
-            width: 100%;
-            padding: 18px;
-            background: var(--main);
-            color: #fff;
-            border: none;
-            border-radius: var(--radius);
-            font-size: 1.3rem;
-            font-weight: 800;
-            cursor: pointer;
-            transition: all 0.2s;
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .action-btn:active { transform: scale(0.96); }
-        .action-btn:disabled {
-            background: var(--accent);
-            color: #bbb;
+        /* 封印(咀嚼)状態 */
+        .verdict-area.locked .cookie-visual {
+            animation: none;
+            opacity: 0.1; /* 無慈悲な薄さ */
             cursor: not-allowed;
-            transform: none;
+            pointer-events: none;
         }
 
-        /* Footer & Modals */
+        /* Status (ボタンの代わりに Aboutボタン ) */
+        .about-btn {
+            display: block; width: 60%; margin: 20px auto 0; background: var(--accent);
+            color: var(--main); border: none; padding: 10px;
+            border-radius: var(--radius); font-weight: 700; font-size: 13px; cursor: pointer;
+        }
+
+        /* Footer */
         footer { margin-top: 30px; font-size: 11px; color: #aaa; line-height: 1.8; }
         footer a { color: inherit; text-decoration: none; }
         .footer-btns { margin-top: 20px; }
@@ -120,12 +126,8 @@
             padding: 12px 25px; border-radius: var(--radius);
             text-decoration: none; font-weight: bold; font-size: 14px; margin-bottom: 12px;
         }
-        .home-btn {
-            display: block; width: 60%; margin: 0 auto; background: var(--accent);
-            color: var(--main); border: none; padding: 10px;
-            border-radius: var(--radius); font-weight: 700; font-size: 13px; cursor: pointer;
-        }
 
+        /* Modals */
         #modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 100;
@@ -133,6 +135,7 @@
         .modal-content {
             background: #fff; width: 85%; max-width: 320px; padding: 30px;
             border-radius: var(--radius); text-align: left; position: relative;
+            user-select: text; -webkit-user-select: text; /* 占いだけはコピー可能 */
         }
         .close-x { position: absolute; top: 15px; right: 20px; font-size: 20px; color: #ccc; cursor: pointer; }
     </style>
@@ -142,17 +145,16 @@
 <div class="container">
     <header>
         <h1>Fortune Cookie</h1>
-        <p class="subtitle">Irresponsible advice for your life.</p>
+        <p class="subtitle">TAP the circle to crack.</p>
     </header>
 
-    <div class="cookie-area">
+    <div class="cookie-area" id="verdictArea">
         <div class="cookie-visual" id="cookieVisual" onclick="crackCookie()"></div>
         <div id="messageDisplay">Tap the cookie.</div>
     </div>
 
     <div class="bottom-controls">
-        <div class="status-msg" id="statusMsg">Ready to crack</div>
-        <button class="action-btn" id="crackBtn" onclick="crackCookie()">CRACK</button>
+        <button class="about-btn" onclick="showAboutModal()">About this cookie</button>
 
         <div class="footer-btns">
             <a href="https://ko-fi.com/afrorakda" target="_blank" class="kofi-btn">☕️buy me a coffee</a>
@@ -172,6 +174,16 @@
         <h3>📱 Install</h3>
         <p>🍏 <strong>iPhone (Safari):</strong><br>Tap Share, then Add to Home Screen.</p>
         <p>🤖 <strong>Android (Chrome):</strong><br>Tap Menu (⋮), then Add to Home Screen.</p>
+    </div>
+</div>
+
+<div id="aboutModal" style="display: none;" onclick="hideAboutModal()" class="modal">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <span class="close-x" onclick="hideAboutModal()">×</span>
+        <h3>About this cookie</h3>
+        <p>This cookie is free of calories, tracking, and ads.</p>
+        <p>It contains irresponsible advice, facts, and predictions. <strong>Do not take it seriously.</strong></p>
+        <p>Once cracked, the cookie needs 3 seconds to bake a new destiny.</p>
     </div>
 </div>
 
@@ -279,44 +291,55 @@
     ];
 
     const display = document.getElementById('messageDisplay');
-    const crackBtn = document.getElementById('crackBtn');
-    const statusMsg = document.getElementById('statusMsg');
     const visual = document.getElementById('cookieVisual');
+    const verdictArea = document.getElementById('verdictArea');
+    let isLocked = false;
 
     function crackCookie() {
-        if (crackBtn.disabled) return;
+        if (isLocked) return;
 
-        // Visual feedback
-        display.style.opacity = '0';
+        // Visual feedback (cracking)
+        visual.style.display = "none"; // 円を消す
+        verdictArea.classList.add('locked'); // 封印
+        isLocked = true;
         
-        setTimeout(() => {
-            const randomIndex = Math.floor(Math.random() * MESSAGES.length);
-            display.textContent = MESSAGES[randomIndex];
-            display.style.opacity = '1';
-            
-            lockButton();
-        }, 150);
+        // Shredder演出
+        display.classList.remove('cracked');
+        void display.offsetWidth; // リフロー
+        
+        const randomIndex = Math.floor(Math.random() * MESSAGES.length);
+        display.textContent = MESSAGES[randomIndex];
+        display.classList.add('cracked');
+        
+        lockButton();
     }
 
     function lockButton() {
-        crackBtn.disabled = true;
+        // 無慈悲な3秒間の咀嚼
         let timeLeft = 3;
-        statusMsg.textContent = `Processing destiny (${timeLeft}s)`;
-        
         const timer = setInterval(() => {
             timeLeft--;
             if (timeLeft <= 0) {
                 clearInterval(timer);
-                crackBtn.disabled = false;
-                statusMsg.textContent = "Ready to crack";
-            } else {
-                statusMsg.textContent = `Processing destiny (${timeLeft}s)`;
+                isLocked = false;
+                verdictArea.classList.remove('locked'); // 封印解除
+                display.classList.remove('cracked'); // 文字を隠す
+                visual.style.display = "block"; // 新しいクッキー出現
+                display.textContent = "Tap the cookie."; // 初期テキストに戻す
             }
         }, 1000);
     }
 
+    // Modals
     function showModal() { document.getElementById('modal').style.display = 'flex'; }
     function hideModal() { document.getElementById('modal').style.display = 'none'; }
+    function showAboutModal() { document.getElementById('aboutModal').style.display = 'flex'; }
+    function hideAboutModal() { document.getElementById('aboutModal').style.display = 'none'; }
+    function hideAboutModal() { document.getElementById('aboutModal').style.display = 'none'; }
+    function hideModals() {
+        document.getElementById('modal').style.display = 'none';
+        document.getElementById('aboutModal').style.display = 'none';
+    }
 </script>
 
 </body>
