@@ -23,11 +23,9 @@
             margin: 0;
             display: flex;
             justify-content: center;
-            /* Hybrid Scroll: 固定しつつ、わずかなスクロールを許容 */
             min-height: 100dvh;
             -webkit-font-smoothing: antialiased;
-            overflow-y: scroll; /* 遊びを持たせる */
-            -webkit-overflow-scrolling: touch;
+            overflow-y: auto;
             user-select: none;
             -webkit-user-select: none;
         }
@@ -35,7 +33,7 @@
         .container {
             width: 100%;
             max-width: 420px;
-            padding: 30px 20px; /* 上下幅をタイトに */
+            padding: 30px 20px;
             box-sizing: border-box;
             text-align: center;
             display: flex;
@@ -44,100 +42,112 @@
         }
 
         h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: 2px; letter-spacing: -1px; }
-        .subtitle { font-size: 0.85rem; color: #666; font-weight: 500; margin-bottom: 20px; }
+        .subtitle { font-size: 0.85rem; color: #666; font-weight: 500; margin-bottom: 10px; }
 
-        /* Cookie Display Area (主役) */
+        /* Cookie Area */
         .cookie-area {
             flex-grow: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 10px;
+            min-height: 300px;
             position: relative;
-            overflow: hidden; /* シュレッダー演出用 */
         }
 
-        /* 脈動アニメーション */
-        @keyframes pulsingCookie {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.05); opacity: 0.9; }
-            100% { transform: scale(1); opacity: 1; }
+        /* Pulsing & Cracking Animation */
+        @keyframes pulsing {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+            100% { transform: scale(1); }
         }
 
-        .cookie-visual {
-            width: 90px;
-            height: 90px;
-            background: var(--main);
-            border-radius: 50%; /* 完全な円に近づける */
+        .cookie-wrapper {
+            position: relative;
+            width: 100px;
+            height: 100px;
             cursor: pointer;
-            position: absolute; /* 位置を中央に固定 */
-            transition: transform 0.1s, opacity 0.3s;
-            animation: pulsingCookie 2s infinite ease-in-out; /* 鼓動 */
+            animation: pulsing 2s infinite ease-in-out;
             -webkit-tap-highlight-color: transparent;
         }
-        .cookie-visual:active { transform: scale(0.92); animation: none; } /* タップで鼓動を止める */
 
-        /* メッセージ (シュレッダー演出用) */
-        @keyframes shredderOut {
-            0% { transform: translateY(100px); opacity: 0; }
+        .cookie-half {
+            position: absolute;
+            width: 50%;
+            height: 100%;
+            background: var(--main);
+            transition: transform 0.3s ease-out, opacity 0.3s;
+        }
+        .left { border-radius: 50px 0 0 50px; left: 0; }
+        .right { border-radius: 0 50px 50px 0; right: 0; }
+
+        .cracking .left { transform: translateX(-50px) rotate(-20deg); opacity: 0; }
+        .cracking .right { transform: translateX(50px) rotate(20deg); opacity: 0; }
+
+        /* Message Display */
+        @keyframes shredder {
+            0% { transform: translateY(30px); opacity: 0; }
             100% { transform: translateY(0); opacity: 1; }
         }
 
         #messageDisplay {
-            font-size: 1.8rem;
             font-weight: 800;
-            line-height: 1.3;
+            line-height: 1.2;
             letter-spacing: -0.5px;
-            min-height: 150px;
+            padding: 0 10px;
+            display: none;
+        }
+        #messageDisplay.show {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            transform: translateY(100px); /* 初期は隠す */
-            opacity: 0;
-            pointer-events: none; /* 隠れている間はクリック不可 */
-        }
-        #messageDisplay.cracked {
-            animation: shredderOut 0.3s ease-out forwards; /* シュレッダー演出 */
-            pointer-events: auto;
+            animation: shredder 0.4s ease-out forwards;
         }
 
-        /* 封印(咀嚼)状態 */
-        .verdict-area.locked .cookie-visual {
-            animation: none;
-            opacity: 0.1; /* 無慈悲な薄さ */
-            cursor: not-allowed;
-            pointer-events: none;
+        /* Last Fortune */
+        .last-fortune {
+            font-size: 0.7rem;
+            color: #ccc;
+            font-style: italic;
+            margin-top: 20px;
+            min-height: 1rem;
+            padding: 0 20px;
         }
 
-        /* Status (ボタンの代わりに Aboutボタン ) */
         .about-btn {
-            display: block; width: 60%; margin: 20px auto 0; background: var(--accent);
+            display: block; width: 60%; margin: 10px auto 0; background: var(--accent);
             color: var(--main); border: none; padding: 10px;
             border-radius: var(--radius); font-weight: 700; font-size: 13px; cursor: pointer;
         }
 
-        /* Footer */
-        footer { margin-top: 30px; font-size: 11px; color: #aaa; line-height: 1.8; }
+        footer { margin-top: 20px; font-size: 11px; color: #aaa; line-height: 1.8; }
         footer a { color: inherit; text-decoration: none; }
-        .footer-btns { margin-top: 20px; }
+        .footer-btns { margin-top: 15px; }
         .kofi-btn {
             display: inline-block; background: var(--main); color: #fff;
             padding: 12px 25px; border-radius: var(--radius);
-            text-decoration: none; font-weight: bold; font-size: 14px; margin-bottom: 12px;
+            text-decoration: none; font-weight: bold; font-size: 14px; margin-bottom: 10px;
+        }
+        .home-btn {
+            display: block; width: 60%; margin: 0 auto; background: var(--accent);
+            color: var(--main); border: none; padding: 8px;
+            border-radius: var(--radius); font-weight: 700; font-size: 12px; cursor: pointer;
         }
 
-        /* Modals */
-        #modal {
+        /* Modal */
+        .modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 100;
         }
         .modal-content {
-            background: #fff; width: 85%; max-width: 320px; padding: 30px;
+            background: #fff; width: 85%; max-width: 320px; padding: 35px 30px;
             border-radius: var(--radius); text-align: left; position: relative;
-            user-select: text; -webkit-user-select: text; /* 占いだけはコピー可能 */
         }
-        .close-x { position: absolute; top: 15px; right: 20px; font-size: 20px; color: #ccc; cursor: pointer; }
+        
+        .close-btn {
+            position: absolute; top: 15px; right: 15px;
+            width: 32px; height: 32px; background: #f0f0f0;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 20px; font-weight: 900; color: var(--main); cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -145,20 +155,24 @@
 <div class="container">
     <header>
         <h1>Fortune Cookie</h1>
-        <p class="subtitle">TAP the circle to crack.</p>
+        <p class="subtitle">TAP the cookie to crack.</p>
     </header>
 
-    <div class="cookie-area" id="verdictArea">
-        <div class="cookie-visual" id="cookieVisual" onclick="crackCookie()"></div>
-        <div id="messageDisplay">Tap the cookie.</div>
+    <div class="cookie-area">
+        <div class="cookie-wrapper" id="cookieWrapper" onclick="crackCookie()">
+            <div class="cookie-half left"></div>
+            <div class="cookie-half right"></div>
+        </div>
+        <div id="messageDisplay"></div>
     </div>
 
     <div class="bottom-controls">
-        <button class="about-btn" onclick="showAboutModal()">About this cookie</button>
+        <div class="last-fortune" id="lastFortune"></div>
+        <button class="about-btn" onclick="showAbout()">About this cookie</button>
 
         <div class="footer-btns">
             <a href="https://ko-fi.com/afrorakda" target="_blank" class="kofi-btn">☕️buy me a coffee</a>
-            <button class="home-btn" onclick="showModal()">Add to Home Screen</button>
+            <button class="home-btn" onclick="showInstall()">Add to Home Screen</button>
         </div>
 
         <footer>
@@ -168,177 +182,104 @@
     </div>
 </div>
 
-<div id="modal" onclick="hideModal()">
+<div id="aboutModal" class="modal" onclick="hideModals()">
     <div class="modal-content" onclick="event.stopPropagation()">
-        <span class="close-x" onclick="hideModal()">×</span>
-        <h3>📱 Install</h3>
-        <p>🍏 <strong>iPhone (Safari):</strong><br>Tap Share, then Add to Home Screen.</p>
-        <p>🤖 <strong>Android (Chrome):</strong><br>Tap Menu (⋮), then Add to Home Screen.</p>
+        <div class="close-btn" onclick="hideModals()">×</div>
+        <h3>About this cookie</h3>
+        <p>This cookie is free of calories and tracking.</p>
+        <p>It provides irresponsible advice. <strong>Do not take it seriously.</strong></p>
+        <p>Baking time for a new destiny: 3 seconds.</p>
     </div>
 </div>
 
-<div id="aboutModal" style="display: none;" onclick="hideAboutModal()" class="modal">
+<div id="installModal" class="modal" onclick="hideModals()">
     <div class="modal-content" onclick="event.stopPropagation()">
-        <span class="close-x" onclick="hideAboutModal()">×</span>
-        <h3>About this cookie</h3>
-        <p>This cookie is free of calories, tracking, and ads.</p>
-        <p>It contains irresponsible advice, facts, and predictions. <strong>Do not take it seriously.</strong></p>
-        <p>Once cracked, the cookie needs 3 seconds to bake a new destiny.</p>
+        <div class="close-btn" onclick="hideModals()">×</div>
+        <h3>📱 Install</h3>
+        <p>🍏 <strong>iPhone:</strong> Tap Share, then Add to Home Screen.</p>
+        <p>🤖 <strong>Android:</strong> Tap Menu (⋮), then Add to Home Screen.</p>
     </div>
 </div>
 
 <script>
     const MESSAGES = [
-        "Your socks are planning a revolution.",
-        "Eat a banana. It won't solve anything, but you'll have a banana.",
-        "The next person you see will have a nose.",
-        "Don't worry, even a broken clock is right twice a day.",
-        "Your lucky color is 'Transparent'.",
-        "The answer you seek is in your other pocket.",
-        "Avoid taking advice from cookies.",
-        "Today is just tomorrow's yesterday.",
-        "Don't forget to blink.",
-        "You will soon receive a mysterious email. Probably spam.",
-        "Something will happen today. Or not.",
-        "A closed mouth gathers no feet.",
-        "Sleep is a free trial of death. Enjoy it.",
-        "You are exactly where you are.",
-        "If you fall, just stay there for a while. Relax.",
-        "Your cat knows what you did.",
-        "The universe is big. You are not.",
-        "If you can't convince them, confuse them.",
-        "A wise man once said nothing. Copy him.",
-        "Your future looks like a blurry JPEG.",
-        "Take a deep breath. Now exhale. Repeat until dead.",
-        "The glass is neither half full nor half empty. It's just a glass.",
-        "Someone is thinking of you. It's probably the tax office.",
-        "Don't go outside. Or do. I'm a cookie, not a cop.",
-        "You will find a coin soon. It will be useless.",
-        "Everything happens for a reason. Usually a bad one.",
-        "Today is a good day to do nothing.",
-        "Gravity is working. Don't fight it.",
-        "You are 100% made of you.",
-        "Look behind you. Just kidding.",
-        "Silence is golden. Duct tape is silver.",
-        "The early bird gets the worm, but the second mouse gets the cheese.",
-        "Ignore the previous fortune.",
-        "Your lucky number is i.",
-        "Everything is fine. Except for that one thing.",
-        "A journey of a thousand miles starts with a broken zipper.",
-        "Don't let yesterday take up too much of today. Use it for naps.",
-        "You have the capacity to learn. Whether you do is another story.",
-        "You will soon encounter a pigeon. Stay calm.",
-        "The wind is blowing. This is normal.",
-        "Reality is a crutch for people who can't handle cookies.",
-        "Your hair looks okay. From a distance.",
-        "Error 404: Fortune not found.",
-        "Drink some water. You look like a raisin.",
-        "You will be hungry again in three hours.",
-        "The back of your head looks interesting.",
-        "Do not eat the paper inside the cookie. Oh wait, this is a web app.",
-        "This cookie contains 0 calories and 0 useful advice.",
-        "Your destiny is to close this tab eventually.",
-        "A surprise is waiting for you. It might be a bill.",
-        "Look at the sky. It's still there.",
-        "You are not a robot. Unless you are. I don't judge.",
-        "Keep moving. Or stop. Both are options.",
-        "The secret to success is knowing who to blame.",
-        "You will find what you are looking for in the last place you look.",
-        "Patience is what you have when there are too many witnesses.",
-        "Your refrigerator is bored. Visit it.",
-        "The person to your left is suspicious.",
-        "Do not believe everything you read. Especially this.",
-        "You will live until you don't.",
-        "Tomorrow you will be one day older.",
-        "The stars say 'Maybe'.",
-        "Your Wi-Fi signal is your only true friend.",
-        "Life is short. Smile while you still have teeth.",
-        "A clean house is a sign of a wasted life.",
-        "You are doing great. At sitting.",
-        "Warning: Life has no save points.",
-        "Your battery is at some percentage.",
-        "A dragon is not in your future.",
-        "Try turning yourself off and on again.",
-        "The moon is watching. Act natural.",
-        "You are a limited edition of one.",
-        "Don't take life too seriously. No one gets out alive anyway.",
-        "A potato has more DNA than you. Think about it.",
-        "You will never be this young again. Sad.",
-        "The road to success is always under construction.",
-        "Your shadow is following you. Don't panic.",
-        "If at first you don't succeed, skydiving is not for you.",
-        "The best things in life are free. The rest is too expensive.",
-        "You will soon eat something.",
-        "The weather will be weather.",
-        "You are holding a device. Good job.",
-        "Wisdom comes with age. Sometimes age comes alone.",
-        "You will soon click a button.",
-        "The light at the end of the tunnel might be a train.",
-        "Change is inevitable. Except from a vending machine.",
-        "You will find $0 on the street today.",
-        "Your mirror doesn't lie. It just laughs.",
-        "Believe in yourself. No one else will.",
-        "A nap a day keeps the reality away.",
-        "You are not the center of the universe. Close, though.",
-        "The floor is made of floor.",
-        "Your keyboard is dirty. Clean it.",
-        "Expect nothing and you will never be disappointed.",
-        "You will breathe roughly 20,000 times today.",
-        "The sun will rise. If it doesn't, this cookie won't matter.",
-        "You are currently reading this.",
-        "Success is 90% showing up. The other 10% is snacks.",
-        "Your future is as bright as your screen's brightness setting."
+        "Your socks are planning a revolution.", "Eat a banana. It won't solve anything.",
+        "The next person you see will have a nose.", "A broken clock is right twice a day.",
+        "Your lucky color is 'Transparent'.", "The answer is in your other pocket.",
+        "Avoid taking advice from cookies.", "Today is just tomorrow's yesterday.",
+        "Don't forget to blink.", "You will receive a mysterious spam email.",
+        "Something will happen today. Or not.", "A closed mouth gathers no feet.",
+        "Sleep is a free trial of death.", "You are exactly where you are.",
+        "If you fall, stay there and relax.", "Your cat knows what you did.",
+        "The universe is big. You are not.", "If you can't convince them, confuse them.",
+        "A wise man once said nothing.", "Your future looks like a blurry JPEG.",
+        "The glass is just a glass.", "Someone is thinking of your tax return.",
+        "Don't go outside. Or do. I'm just a cookie.", "You will find a useless coin.",
+        "Everything happens for a bad reason.", "Today is a good day to do nothing.",
+        "Gravity is working. Don't fight it.", "You are 100% made of you.",
+        "Silence is golden. Duct tape is silver.", "Ignore the previous fortune.",
+        "Everything is fine. Except for that one thing.", "Reality is a crutch for some.",
+        "Error 404: Fortune not found.", "Drink water. You look like a raisin.",
+        "You will be hungry again in three hours.", "Look at the sky. It's still there.",
+        "You are not a robot. Probably.", "The moon is watching. Act natural.",
+        "Life has no save points.", "Your battery is at some percentage.",
+        "Tomorrow you will be one day older.", "The stars say 'Maybe'.",
+        "A clean house is a sign of a wasted life.", "Warning: Reality is ahead.",
+        "The floor is made of floor.", "Expect nothing and avoid disappointment.",
+        "You will breathe 20,000 times today.", "Success is 90% snacks.",
+        "Your future is as bright as your screen."
     ];
 
+    const wrapper = document.getElementById('cookieWrapper');
     const display = document.getElementById('messageDisplay');
-    const visual = document.getElementById('cookieVisual');
-    const verdictArea = document.getElementById('verdictArea');
+    const lastFortune = document.getElementById('lastFortune');
     let isLocked = false;
 
     function crackCookie() {
         if (isLocked) return;
-
-        // Visual feedback (cracking)
-        visual.style.display = "none"; // 円を消す
-        verdictArea.classList.add('locked'); // 封印
         isLocked = true;
-        
-        // Shredder演出
-        display.classList.remove('cracked');
-        void display.offsetWidth; // リフロー
-        
-        const randomIndex = Math.floor(Math.random() * MESSAGES.length);
-        display.textContent = MESSAGES[randomIndex];
-        display.classList.add('cracked');
-        
-        lockButton();
+
+        // Save last fortune
+        if (display.textContent && display.textContent !== "Tap the cookie.") {
+            lastFortune.textContent = `Last: "${display.textContent}"`;
+        }
+
+        // Cracking animation
+        wrapper.classList.add('cracking');
+        display.style.display = 'none';
+
+        setTimeout(() => {
+            wrapper.style.display = 'none';
+            const msg = MESSAGES[Math.floor(Math.random() * MESSAGES.length)];
+            display.textContent = msg;
+            
+            // Dynamic Font Sizing
+            if (msg.length > 30) display.style.fontSize = "1.8rem";
+            else if (msg.length > 15) display.style.fontSize = "2.2rem";
+            else display.style.fontSize = "2.8rem";
+
+            display.classList.add('show');
+            
+            // 3 seconds baking time
+            setTimeout(() => {
+                resetCookie();
+            }, 3000);
+        }, 300);
     }
 
-    function lockButton() {
-        // 無慈悲な3秒間の咀嚼
-        let timeLeft = 3;
-        const timer = setInterval(() => {
-            timeLeft--;
-            if (timeLeft <= 0) {
-                clearInterval(timer);
-                isLocked = false;
-                verdictArea.classList.remove('locked'); // 封印解除
-                display.classList.remove('cracked'); // 文字を隠す
-                visual.style.display = "block"; // 新しいクッキー出現
-                display.textContent = "Tap the cookie."; // 初期テキストに戻す
-            }
-        }, 1000);
+    function resetCookie() {
+        display.classList.remove('show');
+        setTimeout(() => {
+            wrapper.classList.remove('cracking');
+            wrapper.style.display = 'block';
+            isLocked = false;
+        }, 300);
     }
 
-    // Modals
-    function showModal() { document.getElementById('modal').style.display = 'flex'; }
-    function hideModal() { document.getElementById('modal').style.display = 'none'; }
-    function showAboutModal() { document.getElementById('aboutModal').style.display = 'flex'; }
-    function hideAboutModal() { document.getElementById('aboutModal').style.display = 'none'; }
-    function hideAboutModal() { document.getElementById('aboutModal').style.display = 'none'; }
-    function hideModals() {
-        document.getElementById('modal').style.display = 'none';
-        document.getElementById('aboutModal').style.display = 'none';
+    function showAbout() { document.getElementById('aboutModal').style.display = 'flex'; }
+    function showInstall() { document.getElementById('installModal').style.display = 'flex'; }
+    function hideModals() { 
+        document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
     }
 </script>
 
