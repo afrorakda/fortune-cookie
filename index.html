@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Fortune Cookie</title>
+    
+    <link rel="icon" href="image_76.png">
+    <link rel="apple-touch-icon" href="image_76.png">
+
+    <style>
+        :root {
+            --main: #333;
+            --bg: #fff;
+            --accent: #eee;
+            --radius: 15px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--main);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            height: 100dvh;
+            -webkit-font-smoothing: antialiased;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 420px;
+            padding: 40px 20px;
+            box-sizing: border-box;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: 2px; letter-spacing: -1px; }
+        .subtitle { font-size: 0.85rem; color: #666; font-weight: 500; margin-bottom: 20px; }
+
+        /* Cookie Display Area */
+        .cookie-area {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        #messageDisplay {
+            font-size: 1.8rem;
+            font-weight: 800;
+            line-height: 1.3;
+            letter-spacing: -0.5px;
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.2s;
+        }
+
+        .cookie-visual {
+            width: 80px;
+            height: 80px;
+            background: var(--main);
+            border-radius: 50% 50% 10% 50%;
+            transform: rotate(-45deg);
+            margin-bottom: 30px;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .cookie-visual:active { transform: rotate(-45deg) scale(0.92); }
+
+        /* Status & Button */
+        .status-msg {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #bbb;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+            height: 1rem;
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: 18px;
+            background: var(--main);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 1.3rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .action-btn:active { transform: scale(0.96); }
+        .action-btn:disabled {
+            background: var(--accent);
+            color: #bbb;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Footer & Modals */
+        footer { margin-top: 30px; font-size: 11px; color: #aaa; line-height: 1.8; }
+        footer a { color: inherit; text-decoration: none; }
+        .footer-btns { margin-top: 20px; }
+        .kofi-btn {
+            display: inline-block; background: var(--main); color: #fff;
+            padding: 12px 25px; border-radius: var(--radius);
+            text-decoration: none; font-weight: bold; font-size: 14px; margin-bottom: 12px;
+        }
+        .home-btn {
+            display: block; width: 60%; margin: 0 auto; background: var(--accent);
+            color: var(--main); border: none; padding: 10px;
+            border-radius: var(--radius); font-weight: 700; font-size: 13px; cursor: pointer;
+        }
+
+        #modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 100;
+        }
+        .modal-content {
+            background: #fff; width: 85%; max-width: 320px; padding: 30px;
+            border-radius: var(--radius); text-align: left; position: relative;
+        }
+        .close-x { position: absolute; top: 15px; right: 20px; font-size: 20px; color: #ccc; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Fortune Cookie</h1>
+        <p class="subtitle">Irresponsible advice for your life.</p>
+    </header>
+
+    <div class="cookie-area">
+        <div class="cookie-visual" id="cookieVisual" onclick="crackCookie()"></div>
+        <div id="messageDisplay">Tap the cookie.</div>
+    </div>
+
+    <div class="bottom-controls">
+        <div class="status-msg" id="statusMsg">Ready to crack</div>
+        <button class="action-btn" id="crackBtn" onclick="crackCookie()">CRACK</button>
+
+        <div class="footer-btns">
+            <a href="https://ko-fi.com/afrorakda" target="_blank" class="kofi-btn">☕️buy me a coffee</a>
+            <button class="home-btn" onclick="showModal()">Add to Home Screen</button>
+        </div>
+
+        <footer>
+            <div>No login / No tracking / No ads / Browser only</div>
+            <div><a href="https://afrorakda.com/privacy/">Privacy Policy</a> / afrorakda © 2026</div>
+        </footer>
+    </div>
+</div>
+
+<div id="modal" onclick="hideModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <span class="close-x" onclick="hideModal()">×</span>
+        <h3>📱 Install</h3>
+        <p>🍏 <strong>iPhone (Safari):</strong><br>Tap Share, then Add to Home Screen.</p>
+        <p>🤖 <strong>Android (Chrome):</strong><br>Tap Menu (⋮), then Add to Home Screen.</p>
+    </div>
+</div>
+
+<script>
+    const MESSAGES = [
+        "Your socks are planning a revolution.",
+        "Eat a banana. It won't solve anything, but you'll have a banana.",
+        "The next person you see will have a nose.",
+        "Don't worry, even a broken clock is right twice a day.",
+        "Your lucky color is 'Transparent'.",
+        "The answer you seek is in your other pocket.",
+        "Avoid taking advice from cookies.",
+        "Today is just tomorrow's yesterday.",
+        "Don't forget to blink.",
+        "You will soon receive a mysterious email. Probably spam.",
+        "Something will happen today. Or not.",
+        "A closed mouth gathers no feet.",
+        "Sleep is a free trial of death. Enjoy it.",
+        "You are exactly where you are.",
+        "If you fall, just stay there for a while. Relax.",
+        "Your cat knows what you did.",
+        "The universe is big. You are not.",
+        "If you can't convince them, confuse them.",
+        "A wise man once said nothing. Copy him.",
+        "Your future looks like a blurry JPEG.",
+        "Take a deep breath. Now exhale. Repeat until dead.",
+        "The glass is neither half full nor half empty. It's just a glass.",
+        "Someone is thinking of you. It's probably the tax office.",
+        "Don't go outside. Or do. I'm a cookie, not a cop.",
+        "You will find a coin soon. It will be useless.",
+        "Everything happens for a reason. Usually a bad one.",
+        "Today is a good day to do nothing.",
+        "Gravity is working. Don't fight it.",
+        "You are 100% made of you.",
+        "Look behind you. Just kidding.",
+        "Silence is golden. Duct tape is silver.",
+        "The early bird gets the worm, but the second mouse gets the cheese.",
+        "Ignore the previous fortune.",
+        "Your lucky number is i.",
+        "Everything is fine. Except for that one thing.",
+        "A journey of a thousand miles starts with a broken zipper.",
+        "Don't let yesterday take up too much of today. Use it for naps.",
+        "You have the capacity to learn. Whether you do is another story.",
+        "You will soon encounter a pigeon. Stay calm.",
+        "The wind is blowing. This is normal.",
+        "Reality is a crutch for people who can't handle cookies.",
+        "Your hair looks okay. From a distance.",
+        "Error 404: Fortune not found.",
+        "Drink some water. You look like a raisin.",
+        "You will be hungry again in three hours.",
+        "The back of your head looks interesting.",
+        "Do not eat the paper inside the cookie. Oh wait, this is a web app.",
+        "This cookie contains 0 calories and 0 useful advice.",
+        "Your destiny is to close this tab eventually.",
+        "A surprise is waiting for you. It might be a bill.",
+        "Look at the sky. It's still there.",
+        "You are not a robot. Unless you are. I don't judge.",
+        "Keep moving. Or stop. Both are options.",
+        "The secret to success is knowing who to blame.",
+        "You will find what you are looking for in the last place you look.",
+        "Patience is what you have when there are too many witnesses.",
+        "Your refrigerator is bored. Visit it.",
+        "The person to your left is suspicious.",
+        "Do not believe everything you read. Especially this.",
+        "You will live until you don't.",
+        "Tomorrow you will be one day older.",
+        "The stars say 'Maybe'.",
+        "Your Wi-Fi signal is your only true friend.",
+        "Life is short. Smile while you still have teeth.",
+        "A clean house is a sign of a wasted life.",
+        "You are doing great. At sitting.",
+        "Warning: Life has no save points.",
+        "Your battery is at some percentage.",
+        "A dragon is not in your future.",
+        "Try turning yourself off and on again.",
+        "The moon is watching. Act natural.",
+        "You are a limited edition of one.",
+        "Don't take life too seriously. No one gets out alive anyway.",
+        "A potato has more DNA than you. Think about it.",
+        "You will never be this young again. Sad.",
+        "The road to success is always under construction.",
+        "Your shadow is following you. Don't panic.",
+        "If at first you don't succeed, skydiving is not for you.",
+        "The best things in life are free. The rest is too expensive.",
+        "You will soon eat something.",
+        "The weather will be weather.",
+        "You are holding a device. Good job.",
+        "Wisdom comes with age. Sometimes age comes alone.",
+        "You will soon click a button.",
+        "The light at the end of the tunnel might be a train.",
+        "Change is inevitable. Except from a vending machine.",
+        "You will find $0 on the street today.",
+        "Your mirror doesn't lie. It just laughs.",
+        "Believe in yourself. No one else will.",
+        "A nap a day keeps the reality away.",
+        "You are not the center of the universe. Close, though.",
+        "The floor is made of floor.",
+        "Your keyboard is dirty. Clean it.",
+        "Expect nothing and you will never be disappointed.",
+        "You will breathe roughly 20,000 times today.",
+        "The sun will rise. If it doesn't, this cookie won't matter.",
+        "You are currently reading this.",
+        "Success is 90% showing up. The other 10% is snacks.",
+        "Your future is as bright as your screen's brightness setting."
+    ];
+
+    const display = document.getElementById('messageDisplay');
+    const crackBtn = document.getElementById('crackBtn');
+    const statusMsg = document.getElementById('statusMsg');
+    const visual = document.getElementById('cookieVisual');
+
+    function crackCookie() {
+        if (crackBtn.disabled) return;
+
+        // Visual feedback
+        display.style.opacity = '0';
+        
+        setTimeout(() => {
+            const randomIndex = Math.floor(Math.random() * MESSAGES.length);
+            display.textContent = MESSAGES[randomIndex];
+            display.style.opacity = '1';
+            
+            lockButton();
+        }, 150);
+    }
+
+    function lockButton() {
+        crackBtn.disabled = true;
+        let timeLeft = 3;
+        statusMsg.textContent = `Processing destiny (${timeLeft}s)`;
+        
+        const timer = setInterval(() => {
+            timeLeft--;
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                crackBtn.disabled = false;
+                statusMsg.textContent = "Ready to crack";
+            } else {
+                statusMsg.textContent = `Processing destiny (${timeLeft}s)`;
+            }
+        }, 1000);
+    }
+
+    function showModal() { document.getElementById('modal').style.display = 'flex'; }
+    function hideModal() { document.getElementById('modal').style.display = 'none'; }
+</script>
+
+</body>
+</html>
